@@ -1,0 +1,669 @@
+<h3>Plugin overview</h3>
+
+<p>
+The NP_LMReplacementVars plugin is a plugin that gives alternative implementations of some key Nucleus core skin and template variables. 
+These implementations increase the available events for other plugins to facilitate, 
+and makes it possible for plugins to refine the behaviour of these skin and template variables without duplicating the core functionality in each plugin. 
+It is also possible for more than one plugin to refine the behaviour of a skin and template variable without the plugins to know of each other.
+</p>
+
+<p>
+This plugin was made because I need the functionality from the added events in some of my plugins.  
+The hope is that events like these will be implemented in the Nucleus core some time in the future, and make this plugin obsolete.
+</p>
+
+<h3>Installation</h3>
+
+<ul>
+<li>
+Upload the <code>NP_LMReplacementVars.php</code> file and the <code>lmreplacementvars</code> directory from the zip file to the Nucleus CMS plugins directory (<code>nucleus/plugins</code>) on your web server.
+</li>
+<li>
+Go to the Plugins page in the admin area. You should be able to select the plugin in the dropdown list under the "Install New Plugin" section and press the "Install Plugin" button.
+</li>
+</ul>
+
+<h3>Upgrade</h3>
+
+<ul>
+<li>
+Take a backup of the current plugin files. You will need these if you want to rollback to the previous version after the upgrade.
+</li>
+<li>
+Take a backup of the database used for you Nucleus installation.
+</li>
+<li>
+Replace the old plugin files with the new ones. Do not uninstall the plugin.
+</li>
+<li>
+Go to the Plugins page in the admin area and press the "Update subscription list" button.
+</li>
+<li>
+If a plugin data upgrade is needed, will an upgrade plugin data option be 
+available on the NP_LMReplacementVars plugin admin page. Choose this option to upgrade the plugin data.
+</li>
+<li>
+
+After the plugin data upgrade has been performed may a rollback option and a commit option be available on the NP_LMReplacementVars 
+plugin admin page. Not all upgrades support the rollback and commit option.
+</li>
+<li>
+If you are not pleased with the new version of the plugin you may use the rollback option to rollback the plugin data upgrade. 
+After the rollback of the plugin data upgrade you have to replace the new plugin files with the old plugin files.
+</li>
+<li>
+If you are pleased with the new version of the plugin you should use the commit option to commit the plugin data upgrade. 
+After the commit of the plugin data upgrade will any rollback and commit options disappear.
+</li>
+</ul>
+
+
+<h3>Configuration</h3>
+
+<p>
+The NP_LMReplacementVars plugin has no configration options.
+</p>
+
+
+<h3>Usage</h3>
+
+<p>
+Parameter handling in this plugin's implementation of the skin variables is somewhat different from the original skin and template variables. 
+Some parameters are dynamic, and must be passed as <code>parametername=value</code> in the parameter list for the skin and template variable call. 
+The order of dynamic parameters are insignificant. Dynamic parameters are labeled in the parameter lists for each skin and template variable.
+</p>
+
+<p>
+
+
+<p>
+Core skin variables and template variables that have alternative implementations in this plugin are listed in the following sections. 
+</p>
+
+<h3>Archive (skin variable)</h3>
+
+<p>
+Inserts the archive for the selected year, month or day for the currently selected blog, using a given template.
+To use the alternative versions of these skin variable use the following:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(Archive, template, dynamic parameters)%&gt; 
+</pre>
+
+<p>The parameters are as for the core skin variable:</p>
+<ul>
+<li><b>template</b>: Name of the template to use (required).</li>
+<li><b>category</b>: Name of the category to show (optional, dynamic).</li>
+</ul>
+
+<p>
+Example use of the plugin skin variable with parameters:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(Archive,lm/index)%&gt;
+&lt;%LMReplacementVars(Archive,lm/index,category=somename)%&gt;
+</pre>
+
+<p>
+New and changed events this skin variable triggers:
+</p>
+
+<ul>
+<li><b>LMReplacementVars_ArchiveExtraQuery</b>: New event. Subscribing plugins can add SQL to be AND'ed to the WHERE part of the SQL statement used to select items. Parameters in $data: 
+<ul>
+<li><b>blog</b> - Blog object</li>
+<li><b>skinvarparm</b> - Associated array with dynamic skin variable parameters (parametername => value).</li>
+<li><b>extraquery</b> - Associated array with extra SQL (pluginname => sql). Add the extra SQL required by your plugin to this array. <br />
+Example: <code>$data['extraquery']['yourpluginnname'] = 'i.inumber=4';</code>
+</li>
+</ul>
+</li>
+<li><b>LMReplacementVars_ArchiveOrderQuery</b>: New event. Subscribing plugins can set the order items should be listed. Parameters in $data: 
+<ul>
+<li><b>blog</b> - Blog object</li>
+<li><b>skinvarparm</b> - Associated array with dynamic skin variable parameters (parametername => value).</li>
+<li><b>orderquery</b> - Column and direction that items are to be ordered by on archive pages. Available columns are TITLE and TIME. 
+Avaiable directions are ASC (ascending) and DESC (descending).
+Plugins can only set this value if it's not already set by another plugin. 
+If more than 1 plugin want to set this value, the plugin higher in the plugin list will get preference.<br />
+Example: <code>$data['orderquery'] = 'TITLE ASC';</code>
+</li>
+</ul>
+</li>
+<li><b>PreBlogContent</b>: Added parameters in $data:</li>
+<ul>
+<li><b>templatename</b> - Name of template.</li>
+<li><b>extraquery</b> - Associated array of extra SQL (pluginname => sql) returned by the LMReplacementVars_ArchiveExtraQuery event.</li>
+<li><b>skinvarparm</b> - Associated array of dynamic skin variable parameters (parametername => value).</li>
+<li><b>orderquery</b> - String with SQL to be added to ORDER BY returned by the LMReplacementVars_ArchiveOrderQuery event.</li>
+</ul>
+<li><b>PostBlogContent</b>: Added parameters in $data:</li>
+<ul>
+<li><b>templatename</b> - Name of template.</li>
+<li><b>extraquery</b> - Associated array of extra SQL (pluginname => sql) returned by the LMReplacementVars_ArchiveExtraQuery event.</li>
+<li><b>skinvarparm</b> - Associated array of dynamic skin variable parameters (parametername => value).</li>
+<li><b>orderquery</b> - String with SQL to be added to ORDER BY returned by the LMReplacementVars_ArchiveOrderQuery event.</li>
+</ul>
+</ul>
+
+<h3>Archivelist, archivedaylist and archiveyearlist (skin variable)</h3>
+
+<p>
+Inserts the list of available archives for the currently selected blog, using a given template. 
+To use the alternative versions of these skin variable use the following:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(ArchiveList, template, dynamic parameters)%&gt; 
+&lt;%LMReplacementVars(ArchiveDayList, template, dynamic parameters)%&gt;
+&lt;%LMReplacementVars(ArchiveYearList, template, dynamic parameters)%&gt;
+</pre>
+
+<p>The parameters are as for the core skin variable:</p>
+<ul>
+<li><b>template</b>: Name of the template to use (required).</li>
+<li><b>category</b>: Name of the category to show (optional, dynamic).</li>
+<li><b>limit</b>: Limits the amount of links shown (optional, dynamic).</li>
+</ul>
+
+<p>
+Example use of the plugin skin variable with parameters:
+</p>
+
+<pre>&lt;%LMReplacementVars(ArchiveList,lm/index)%&gt;
+&lt;%LMReplacementVars(ArchiveDayList,lm/index,category=somename,limit=10)%&gt;
+&lt;%LMReplacementVars(ArchiveYearList,lm/index,limit=5)%&gt;</pre>
+
+<p>
+New and changed events these skin variable triggers:
+</p>
+
+<ul>
+<li><b>LMReplacementVars_ArchListExtraQuery</b>: New event. Subscribing plugins can add SQL to be AND'ed to the WHERE part of the SQL statement used to select items. Parameters in $data: 
+<ul>
+<li><b>blog</b> - Blog object</li>
+<li><b>skinvarparm</b> - Associated array with dynamic skin variable parameters (parametername => value).</li>
+<li><b>extraquery</b> - Associated array with extra SQL (pluginname => sql). Add the extra SQL required by your plugin to this array. <br />
+Example: <code>$data['extraquery']['yourpluginnname'] = 'i.inumber=4';</code>
+</li>
+</ul>
+</li>
+<li><b>LMReplacementVars_ArchListItemLinkPar</b>: New event. Subscribing plugins can add parameters to the archive links generated by the skin variable. Parameters in $data: 
+<ul>
+	<li><b>listitem</b> - Associated array with information on the archive list item to be rendered. The array hs the following keys:
+	<ul>
+		<li><b>blogid</b> - Id for the blog that the arcive list item is for.</li>
+		<li><b>day</b> - Day number in month the arcive list item is for.</li>
+		<li><b>month</b> - Month number the arcive list item is for.</li>
+		<li><b>year</b> - Year the arcive list item is for.</li>
+		<li><b>linkparams</b> - Associated array with archive link parameters. Add the extra archive link parameters required by your plugin to this array.<br />
+		Example: <code>$data['listitem']['linkparams']['parametername'] = $value;</code>
+		</li>
+	</ul>
+	</li>
+</ul>
+</li>
+<li><b>PreBlogContent</b>: Added parameters in $data:</li>
+<ul>
+<li><b>templatename</b> - Name of template.</li>
+<li><b>extraquery</b> - Associated array of extra SQL (pluginname => sql) returned by the LMReplacementVars_ArchListExtraQuery event.</li>
+<li><b>limit</b> - Limit parameter from the skin variable call.</li>
+<li><b>skinvarparm</b> - Associated array of dynamic skin variable parameters (parametername => value).</li>
+</ul>
+<li><b>PostBlogContent</b>: Added parameters in $data:</li>
+<ul>
+<li><b>templatename</b> - Name of template.</li>
+<li><b>extraquery</b> - Associated array of extra SQL (pluginname => sql) returned by the LMReplacementVars_ArchListExtraQuery event.</li>
+<li><b>limit</b> - Limit parameter from the skin variable call.</li>
+<li><b>skinvarparm</b> - Associated array of dynamic skin variable parameters (parametername => value).</li>
+</ul>
+</ul>
+
+<h3>Blog (skin variable)</h3>
+
+<p>
+Inserts the most recently added items of the currently active blog, using a given template. 
+To use the alternative versions of this skin variable use the following:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(Blog, template, dynamic parameters)%&gt; 
+</pre>
+
+<p>The parameters are as for the core skin variable:</p>
+<ul>
+<li><b>template</b>: Name of the template to use (required).</li>
+<li><b>amount</b>: The amount of items to show (optional, dynamic). Can specify an offset to start at by adding a number in parenthesis after the amount of items to show.</li>
+<li><b>category</b>: Name of the category to show (optional, dynamic).</li>
+</ul>
+
+<p>
+Example use of the plugin skin variable with parameters:
+</p>
+
+<pre>&lt;%LMReplacementVars(Blog,lm/index)%&gt;
+&lt;%LMReplacementVars(Blog,lm/index,category=somename,amount=10)%&gt;
+&lt;%LMReplacementVars(Blog,lm/index,amount=10(5))%&gt;</pre>
+
+<p>
+New and changed events this skin variable triggers:
+</p>
+
+<ul>
+<li><b>LMReplacementVars_BlogExtraQuery</b>: New event. 
+Subscribing plugins can add SQL to be AND'ed to the WHERE part of the SQL statement used to select items. Parameters in $data: 
+<ul>
+<li><b>blog</b> - Blog object</li>
+<li><b>skinvarparm</b> - Associated array with dynamic skin variable parameters (parametername => value).</li>
+<li><b>extraquery</b> - Associated array with extra SQL (pluginname => sql). Add the extra SQL required by your plugin to this array. <br />
+Example: <code>$data['extraquery']['yourpluginnname'] = 'i.inumber=4';</code>
+</li>
+</ul>
+</li>
+<li><b>LMReplacementVars_BlogOrderQuery</b>: New event. Subscribing plugins can set the order items should be listed. Parameters in $data: 
+<ul>
+<li><b>blog</b> - Blog object</li>
+<li><b>skinvarparm</b> - Associated array with dynamic skin variable parameters (parametername => value).</li>
+<li><b>orderquery</b> - Column and direction that items are to be ordered by on index pages. Available columns are TITLE and TIME. 
+Avaiable directions are ASC (ascending) and DESC (descending). 
+Plugins can only set this value if it's not already set by another plugin.
+If more than 1 plugin want to set this value, the plugin higher in the plugin list will get preference.<br />
+Example: <code>$data['orderquery'] = 'TITLE ASC';</code>
+</li>
+</ul>
+</li>
+<li><b>PreBlogContent</b>: Added parameters in $data:</li>
+<ul>
+<li><b>templatename</b> - Name of template.</li>
+<li><b>extraquery</b> - Associated array of extra SQL (pluginname => sql) returned by the LMReplacementVars_BlogExtraQuery event.</li>
+<li><b>limit</b> - Limit part of the amount parameter from the skin variable call.</li>
+<li><b>offset</b> - Offset part of the amount parameter from the skin variable call.</li>
+<li><b>startpos</b> - Start position where the skin variable will start showing items. This value can be changed by subscribing plugins.</li>
+<li><b>skinvarparm</b> - Associated array of dynamic skin variable parameters (parametername => value).</li>
+<li><b>orderquery</b> - String with SQL to be added to ORDER BY returned by the LMReplacementVars_BlogOrderQuery event.</li>
+</ul>
+<li><b>PostBlogContent</b>: Added parameters in $data:</li>
+<ul>
+<li><b>templatename</b> - Name of template.</li>
+<li><b>extraquery</b> - Associated array of extra SQL (pluginname => sql) returned by the LMReplacementVars_BlogExtraQuery event.</li>
+<li><b>limit</b> - Limit part of the amount parameter from the skin variable call.</li>
+<li><b>offset</b> - Offset part of the amount parameter from the skin variable call.</li>
+<li><b>startpos</b> - Start position where the skin variable will start showing items.</li>
+<li><b>skinvarparm</b> - Associated array of dynamic skin variable parameters (parametername => value).</li>
+<li><b>orderquery</b> - String with SQL to be added to ORDER BY returned by the LMReplacementVars_BlogOrderQuery event.</li>
+</ul>
+</ul>
+
+<h3>Categorylist (skin variable)</h3>
+
+<p>
+Inserts a list of categories for a blog. To use the alternative version of the skin variable use the following:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(CategoryList, template, dynamic parameters)%&gt; 
+</pre>
+
+<p>The parameters are as for the core skin variable:</p>
+<ul>
+<li><b>template</b>: Name of the template to use (required).</li>
+<li><b>blogname</b>: short name of the blog to use (optional, dynamic).</li>
+</ul>
+
+<p>
+Example use of the plugin skin variable with parameters:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(CategoryList,lm/index)%&gt;
+&lt;%LMReplacementVars(CategoryList,lm/index,blogname=somename)%&gt;
+</pre>
+
+<p>
+New and changed events this skin variable triggers:
+</p>
+
+<ul>
+<li><b>LMReplacementVars_CatListItemLinkPar</b>: New event. Subscribing plugins can add parameters to the category links generated by the skin variable. Parameters in $data: 
+<ul>
+	<li><b>listitem</b> - Associated array with information on the category list item to be rendered. The array has the following keys:
+	<ul>
+		<li><b>blogid</b> - Id for the blog that the category list item is for.</li>
+		<li><b>catid</b> - Category id the category list item is for. Is 0 for header and footer.</li>
+		<li><b>catiscurrent</b> - Is the category list item for for the current category.</li>
+		<li><b>currentcat</b> - Same as catiscurrent.</li>
+		<li><b>linkparams</b> - Associated array with category link parameters. Add the extra category link parameters required by your plugin to this array.<br />
+		Example: <code>$data['listitem']['linkparams']['parametername'] = $value;</code>
+		</li>
+	</ul>
+	</li>
+</ul>
+</li>
+</ul>
+
+<h3>Comments (skin variable)</h3>
+
+<p>
+Shows the comments for the currently selected item using a given template. To use the alternative version of the skin variable use the following:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(Comments, template, dynamic parameters)%&gt; 
+</pre>
+
+<p>The parameters are as for the core skin variable:</p>
+<ul>
+<li><b>template</b>: Name of the template to use (required).</li>
+</ul>
+
+<p>
+Example use of the plugin skin variable with parameters:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(Comments,lm/index)%&gt;
+</pre>
+
+<p>
+New and changed events this skin variables triggers:
+</p>
+
+<ul>
+<li><b>LMReplacementVars_CommentsExtraQuery</b>: New event. Subscribing plugins can add to the SQL statement used to select comments. Parameters in $data: 
+<ul>
+<li><b>blog</b> - Blog object</li>
+<li><b>item</b> - Item object</li>
+<li><b>skinvarparm</b> - Associated array with dynamic skin variable parameters (parametername => value).</li>
+<li><b>extraquery</b> - Associated array with SQL to add the the SQL statement used to select comments. The array has the following keys:
+	<ul>
+		<li><b>select</b> - Associated array (pluginname => sql). Add the columns your plugin needs to be included in the SELECT part of the statement to this array. <br />
+Example: <code>$data['extraquery']['select']['yourpluginname'] = 'somecolumn, someothercolumn';</code></li>
+		<li><b>from</b> - Associated array (pluginname => sql). Add the tables your plugin needs to be included in the FROM part of the statement to this array. <br />
+Example: <code>$data['extraquery']['from']['yourpluginname'] = 'sometable as somealias';</code></li>
+		<li><b>where</b> - Associated array (pluginname => sql). Add the conditions your plugin needs to be AND'ed to the WHERE part of the statement to this array. <br />
+Example: <code>$data['extraquery']['where']['yourpluginname'] = 'somealias.somecolumn IN ("X", "Y")';</code></li>
+		<li><b>orderby</b> - Associated array (pluginname => sql). Add the sort order your plugin needs to be included in the ORDER BY part of the statement to this array.
+		If no plugins add elements to this array will the default sort order (<code>c.ctime ASC</code>) be used for comments.<br />
+Example: <code>$data['extraquery']['orderby']['yourpluginname'] = 'somealias.somecolumn ASC';</code></li>
+	</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<h3>Comments (template variable)</h3>
+
+<p>
+Shows the comments for the currently selected item inside a template. To use the alternative version of the template variable use the following:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(Comments, dynamic parameters)%&gt; 
+</pre>
+
+<p>The parameters are as for the core template variable:</p>
+
+<ul>
+<li><b>maxtoshow</b>: Amount of comments to show (when set, this overrides the max. comments blogsetting) (optional, dynamic).</li>
+</ul>
+
+<p>
+Example use of the plugin template variable with parameters:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(Comments,maxtoshow=0)%&gt;
+</pre>
+
+<p>
+This template variable uses the same new events as the Comments skin variable. 
+</p>
+
+<h3>CommentForm (skin variable)</h3>
+
+<p>
+Shows the comment form on an item page. To use the alternative version of the skin variable use the following:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(CommentForm, template, dynamic parameters)%&gt; 
+</pre>
+
+<p>The parameters are as for the core skin variable:</p>
+
+<ul>
+<li><b>destinationurl</b>: Sets the URL to where Nucleus needs to redirect after adding the comment (default is to redirect to the comment on the item page) (optional, dynamic).</li>
+</ul>
+
+<p>
+If no destination URL is given as parameter is the user redirected to the comment after a comment is added. 
+For this redirection to work must a <code>id</code> attribute identifing the comment be added to the first HTML element for each comment shown.
+A comment is identified by the word <code>comment</code> followed by the comment id. 
+In the comment template can the <code>id</code> attribute be generated by the following code:
+</p>
+
+<pre>
+id="comment&lt;%commentid%&gt;"
+</pre>
+
+<p>
+Example use of the plugin skin variable with parameters:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(CommentForm,lm/index,destinationurl=http://host/thanks.html)%&gt;
+</pre>
+
+<p>
+New and changed events this skin variables triggers:
+</p>
+
+<ul>
+<li><b>LMReplacementVars_PreForm</b>: New event. This event is triggered before a comment form is shown. Parameters in $data: 
+<ul>
+<li><b>type</b> - The type of commentform.</li>
+<li><b>formdata</b> - Associated array with formdata. The formdata is used by the &lt;%formdata(key)%&gt; formvar. The contents of the array can be altered. The array has the following keys:
+	<ul>
+		<li><b>destinationurl</b> - Destination URL.</li>
+		<li><b>actionurl</b> - Action URL.</li>
+		<li><b>itemid</b> - Item id.</li>
+		<li><b>user</b> - User name.</li>
+		<li><b>userid</b> - User id.</li>
+		<li><b>email</b> - Email.</li>
+		<li><b>body</b> - Body of comment.</li>
+		<li><b>membername</b> - Member name.</li>
+		<li><b>rememberchecked</b> - Remeber checkmark</li>
+		<li><b>ticket</b> - Ticket.</li>
+	</ul>
+</li>
+<li><b>contents</b> - Alternate content for the form that can be supplied by a subscribing plugin. Only update the contents if it's empty.</li>
+<li><b>retry</b> - True if this is a retry after a failure to add a comment.</li>
+<li><b>commentid</b> - Comment id if the form is shown in a comment. See CommentForm template variable.</li>
+<li><b>templatename</b> - Name of template in use.</li>
+</ul>
+</li>
+</ul>
+
+<h3>CommentForm (template variable)</h3>
+
+<p>
+Shows the comment form on an item page inside a comment. 
+The commentform can only be shown once for each item.
+This template variable is used in all comments for an item, 
+but plugins subscribing to the <code>LMReplacementVars_CommentFormInComment</code> 
+event decides if a comment form is to be shown for a comment.
+To use the alternative version of the skin variable use the following:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(CommentForm, template, dynamic parameters)%&gt; 
+</pre>
+
+<p>The parameters are as for the core skin variable:</p>
+
+<ul>
+<li><b>destinationurl</b>: Sets the URL to where Nucleus needs to redirect after adding the comment (default is to redirect to the comment on the item page) (optional, dynamic).</li>
+</ul>
+
+<p>
+Example use of the plugin skin variable with parameters:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(CommentForm,lm/index,destinationurl=http://host/thanks.html)%&gt;
+</pre>
+
+<p>
+New and changed events this skin variables triggers:
+</p>
+
+<ul>
+<li><b>LMReplacementVars_PreForm</b>: New event. See CommentForm skin variable for a description of this event.
+</li>
+<li><b>LMReplacementVars_CommentFormInComment</b>: New event. Ask plugins if the CommentForm should be shown for a comment. Parameters in $data:
+<ul>
+<li><b>item</b> - Associated array with the attributes of the item to show comment form for.</li>
+<li><b>comment</b> - Associated array with the attributes of the comment to show.</li>
+<li><b>continue</b> - Set to <code>TRUE</code> if the comment form be shown for this comment.</li>
+</ul>
+</li>
+</ul>
+
+<h3>Item (skin variable)</h3>
+
+<p>
+Shows the currently selected item using a given template.
+To use the alternative version of the skin variable use the following:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(Item, template)%&gt; 
+</pre>
+
+<p>
+Example use of the plugin skin variable with parameters:
+</p>
+
+<pre>
+&lt;%LMReplacementVars(Item,lm/index)%&gt;
+</pre>
+
+<p>
+New and changed events this skin variables triggers:
+</p>
+
+<ul>
+<li><b>PreBlogContent</b>: Added parameters in $data:</li>
+<ul>
+<li><b>templatename</b> - Name of template.</li>
+<li><b>skinvarparm</b> - Associated array of dynamic skin variable parameters (parametername => value).</li>
+<li><b>itemid</b> - Id for the item to be shown.</li>
+</ul>
+<li><b>PostBlogContent</b>: Added parameters in $data:</li>
+<ul>
+<li><b>templatename</b> - Name of template.</li>
+<li><b>skinvarparm</b> - Associated array of dynamic skin variable parameters (parametername => value).</li>
+<li><b>itemid</b> - Id for the item that has been.</li>
+</ul>
+</ul>
+
+<h3>Previtem, Previtemtitle, Prevlink, Nextitem, Nextitemtitle and Nextlink (skin variable)</h3>
+
+<p>
+These are skin variables for making next item and previous item linking on item pages. 
+This plugin has not any new skin variables for these skin variables, 
+as the behaviour of the old ones can ble modified without making a new implementation of the skin variables.
+</p>
+
+<p>
+New events that are triggered to configure how the system should use these skin variables:
+</p>
+
+<ul>
+<li><b>LMReplacementVars_PreNextExtraQuery</b>: New event. 
+Subscribing plugins can add SQL to be AND'ed to the WHERE part of the SQL statement used 
+to select items for the previous item and next item skin variables on item pages. 
+Parameters in $data: 
+<ul>
+<li><b>blog</b> - Blog object</li>
+<li><b>extraquery</b> - Associated array with extra SQL (pluginname => sql). Add the extra SQL required by your plugin to this array. <br />
+Example: <code>$data['extraquery']['yourpluginnname'] = 'i.inumber=4';</code>
+</li>
+</ul>
+</li>
+<li><b>LMReplacementVars_PreNextOrderQuery</b>: New event. 
+Subscribing plugins can set the order items should listed for the next item and previous item linking on item pages. Parameters in $data: 
+<ul>
+<li><b>blog</b> - Blog object</li>
+<li><b>orderquery</b> - Column and direction that items are to be ordered by. Available columns are TITLE and TIME. 
+Avaiable directions are ASC (ascending) and DESC (descending). 
+Plugins can only set this value if it's not already set by another plugin.
+If more than 1 plugin want to set this value, the plugin higher in the plugin list will get preference.<br />
+Example: <code>$data['orderquery'] = 'TITLE ASC';</code>
+</li>
+</ul>
+</li>
+</ul>
+
+<h3>Events not related to skin variables or template variables</h3>
+
+<ul>
+<li><b>LMReplacementVars_EditCommentFormExtras</b>: New event. Triggered when a comment is edited in the admin area. Here plugins can add their comment custom fields.
+
+Parameters in $data: 
+<ul>
+<li><b>comment</b> - Associated array with comment data</li>
+</ul>
+</li>
+</ul>
+
+
+<h3>Support and Bug reports</h3>
+
+<p>
+For additional support and/or bug reports please use the Nucleus forum 
+<a href="http://forum.nucleuscms.org/viewtopic.php?t=21066">plugin announce thread</a> 
+or the <a href="http://nucleus.slightlysome.net/plugins/lmreplacementvars">plugin page</a> comment section.
+</p>
+
+
+<h3>Compability</h3>
+
+<p>
+This version of the NP_LMReplacementVars is tested against version 3.66 of LMNucleus CMS. The minimum version of Nucleus CMS needed for using this plugin is 3.60. 
+</p>
+
+<h3>Version History</h3>
+
+<ul>
+<li><b>v1.0.0 2013-01-27:</b> by Leo (http://nucleus.slightlysome.net/leo)</li>
+<ul>
+<li>Initial release.</li>
+</ul>
+<li><b>v1.0.1 2013-05-20:</b> by Leo (http://nucleus.slightlysome.net/leo)</li>
+<ul>
+<li>Changes for PHP 5.4.</li>
+</ul>
+<li><b>v1.1.0 2014-04-13:</b> by Leo (http://nucleus.slightlysome.net/leo)</li>
+<ul>
+<li>Replacement for Comments skin and template variable.</li>
+<li>Replacement for CommentForm skin variable.</li>
+<li>Replacement for Item skin variable.</li>
+<li>New events: 
+<ul>
+<li>LMReplacementVars_CommentsExtraQuery</li>
+<li>LMReplacementVars_PreForm</li>
+<li>LMReplacementVars_CommentFormInComment</li>
+<li>LMReplacementVars_EditCommentFormExtras.</li>
+</ul>
+</ul>
+</ul>
+
+<h3>Download</h3>
+
+<p>
+<a href="http://nucleus.slightlysome.net/files/NP_LMReplacementVars_v110.zip" title="Download NP_LMReplacementVars_v110.zip">Download NP_LMReplacementVars v1.1.0</a>. 
+The latest version of the NP_LMReplacementVars plugin can be downloaded from the NP_LMReplacementVars <a href="http://nucleus.slightlysome.net/plugins/lmreplacementvars">plugin page</a>.
+</p>
